@@ -1,0 +1,21 @@
+.accordion-button {
+  font-weight: bold;
+  color: #0B6E4F; /* hijau elegan */
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #e6f5ef; /* hijau muda pas aktif */
+  color: #0B6E4F;
+}
+
+.accordion-body {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.table thead {
+  background: #0B6E4F !important;
+  color: #fff;
+}

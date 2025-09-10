@@ -1,0 +1,519 @@
+{% extends "base.html" %}
+{% block title %}Data User - SPBE Migas{% endblock %}
+{% block page_title %}Manajemen Data User{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h2 class="fw-bold text-dark mb-2">Manajemen User</h2>
+                <p class="text-muted mb-0">Kelola data pengguna sistem SPBE Migas</p>
+            </div>
+            <div class="d-flex gap-3 flex-wrap">
+                <a href="/register" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i>Tambah User
+                </a>
+                <button class="btn btn-outline-success" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel me-2"></i>Export Excel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-users me-2"></i>Daftar Pengguna
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="search-filter-section mb-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="searchInput" class="form-control ps-5" 
+                                   placeholder="Cari berdasarkan username atau email...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="roleFilter">
+                            <option value="">Semua Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="lapangan">Lapangan</option>
+                            <option value="user">User</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-secondary w-100" onclick="resetFilters()">
+                            <i class="fas fa-undo me-1"></i>Reset Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="table table-hover mb-0" id="userTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%">ID</th>
+                            <th style="width: 20%">Username</th>
+                            <th style="width: 25%">Email</th>
+                            <th style="width: 15%">Role</th>
+                            <th style="width: 20%">Tanggal Daftar</th>
+                            <th style="width: 12%">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr class="user-row" data-role="{{ user.role }}" data-search="{{ (user.username or '') + ' ' + (user.email or '') }}">
+                            <td>
+                                <span class="id-badge">{{ user.id }}</span>
+                            </td>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar-sm">
+                                        {{ user.username[0].upper() if user.username else 'U' }}
+                                    </div>
+                                    <div class="user-details">
+                                        <div class="username">{{ user.username or '-' }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="email-display">
+                                    {% if user.email %}
+                                        <i class="fas fa-envelope text-muted me-2"></i>{{ user.email }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if user.role == 'admin' %}
+                                    <span class="badge role-admin">
+                                        <i class="fas fa-crown me-1"></i>Admin
+                                    </span>
+                                {% elif user.role == 'lapangan' %}
+                                    <span class="badge role-lapangan">
+                                        <i class="fas fa-hard-hat me-1"></i>Lapangan
+                                    </span>
+                                {% else %}
+                                    <span class="badge role-user">
+                                        <i class="fas fa-user me-1"></i>{{ user.role.title() if user.role else 'User' }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="date-display">
+                                    <i class="fas fa-calendar-alt text-muted me-2"></i>
+                                    {% if user.created_at %}
+                                        {{ user.created_at.strftime('%d/%m/%Y') }}
+                                        <small class="text-muted d-block">{{ user.created_at.strftime('%H:%M') }}</small>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="/users/edit/{{ user.id }}" class="btn btn-sm btn-outline-primary" title="Edit User">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="/users/delete/{{ user.id }}" class="btn btn-sm btn-outline-danger" title="Hapus User"
+                                       onclick="return confirm('Apakah Anda yakin ingin menghapus user {{ user.username }}?')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="empty-state-inline">
+                                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                    <h6 class="text-muted">Belum ada data user</h6>
+                                    <p class="text-muted small">Tambah user baru untuk mulai mengelola sistem</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination-container mt-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="pagination-info">
+                        <small class="text-muted">
+                            Menampilkan <span id="showingStart">0</span> - <span id="showingEnd">0</span> 
+                            dari <span id="totalRows">{{ users|length }}</span> data
+                        </small>
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn btn-outline-primary btn-sm" id="prevBtn" disabled>
+                            <i class="fas fa-chevron-left me-1"></i>Sebelumnya
+                        </button>
+                        <span class="mx-3">
+                            Halaman <span id="currentPageSpan">1</span> dari <span id="totalPagesSpan">1</span>
+                        </span>
+                        <button class="btn btn-outline-primary btn-sm" id="nextBtn">
+                            Selanjutnya<i class="fas fa-chevron-right ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Page Header */
+    .page-header {
+        background: var(--pure-white);
+        border: 1px solid var(--border-gray);
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Search and Filter Section */
+    .search-filter-section {
+        background: var(--bg-gray);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        border: 1px solid var(--border-gray);
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--light-gray);
+        z-index: 2;
+    }
+
+    .search-box input {
+        padding-left: 3rem;
+    }
+
+    /* Table Styles */
+    .table-container {
+        border-radius: 0.75rem;
+        overflow: hidden;
+        border: 1px solid var(--border-gray);
+    }
+
+    .table thead th {
+        background: var(--dark-gray);
+        color: var(--pure-white);
+        font-weight: 600;
+        padding: 1.25rem 1rem;
+        border: none;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-color: var(--border-gray);
+    }
+
+    .table tbody tr:hover {
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    /* User Info Display */
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .user-avatar-sm {
+        width: 35px;
+        height: 35px;
+        background: var(--secondary-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--pure-white);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .username {
+        font-weight: 600;
+        color: var(--dark-gray);
+    }
+
+    .email-display {
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+    }
+
+    .date-display {
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+    }
+
+    .id-badge {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary-blue);
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.5rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+
+    /* Role Badges */
+    .role-admin {
+        background: var(--primary-blue);
+        color: var(--pure-white);
+    }
+
+    .role-lapangan {
+        background: var(--primary-green);
+        color: var(--pure-white);
+    }
+
+    .role-user {
+        background: var(--medium-gray);
+        color: var(--pure-white);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .action-buttons .btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .action-buttons .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Pagination */
+    .pagination-container {
+        background: var(--bg-gray);
+        border-radius: 0.75rem;
+        padding: 1rem 1.5rem;
+        border: 1px solid var(--border-gray);
+    }
+
+    .pagination-info {
+        font-weight: 500;
+    }
+
+    .pagination-controls .btn {
+        border-radius: 0.5rem;
+        font-weight: 500;
+    }
+
+    /* Empty State */
+    .empty-state-inline {
+        padding: 2rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-header .d-flex {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .search-filter-section .row > div {
+            margin-bottom: 1rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .pagination-container .d-flex {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .action-buttons {
+            justify-content: center;
+        }
+
+        .user-info {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table thead th,
+        .table tbody td {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .user-avatar-sm {
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+
+<script>
+    // Pagination Configuration
+    const rowsPerPage = 10;
+    let currentPage = 1;
+    let currentRows = [];
+    let allRows = [];
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableBody = document.querySelector('#userTable tbody');
+        allRows = Array.from(tableBody.querySelectorAll('tr.user-row'));
+        currentRows = [...allRows];
+        
+        updatePagination();
+        showPage(1);
+        
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', filterTable);
+        document.getElementById('roleFilter').addEventListener('change', filterTable);
+        document.getElementById('prevBtn').addEventListener('click', () => changePage(-1));
+        document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
+    });
+
+    // Filter Table Function
+    function filterTable() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const roleFilter = document.getElementById('roleFilter').value;
+
+        currentRows = allRows.filter(row => {
+            const searchData = row.getAttribute('data-search').toLowerCase();
+            const rowRole = row.getAttribute('data-role');
+            
+            const matchesSearch = !searchTerm || searchData.includes(searchTerm);
+            const matchesRole = !roleFilter || rowRole === roleFilter;
+            
+            return matchesSearch && matchesRole;
+        });
+
+        currentPage = 1;
+        updatePagination();
+        showPage(1);
+    }
+
+    // Reset Filters
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('roleFilter').value = '';
+        currentRows = [...allRows];
+        currentPage = 1;
+        updatePagination();
+        showPage(1);
+    }
+
+    // Show Page Function
+    function showPage(page) {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        
+        // Hide all rows
+        allRows.forEach(row => row.style.display = 'none');
+        
+        // Show current page rows
+        currentRows.slice(start, end).forEach(row => {
+            row.style.display = '';
+        });
+        
+        // Update pagination info
+        document.getElementById('showingStart').textContent = currentRows.length > 0 ? start + 1 : 0;
+        document.getElementById('showingEnd').textContent = Math.min(end, currentRows.length);
+        document.getElementById('totalRows').textContent = currentRows.length;
+        document.getElementById('currentPageSpan').textContent = page;
+    }
+
+    // Change Page Function
+    function changePage(direction) {
+        const totalPages = Math.ceil(currentRows.length / rowsPerPage);
+        const newPage = currentPage + direction;
+        
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentPage = newPage;
+            showPage(currentPage);
+            updatePagination();
+        }
+    }
+
+    // Update Pagination Controls
+    function updatePagination() {
+        const totalPages = Math.ceil(currentRows.length / rowsPerPage);
+        
+        document.getElementById('prevBtn').disabled = currentPage <= 1;
+        document.getElementById('nextBtn').disabled = currentPage >= totalPages || totalPages === 0;
+        document.getElementById('totalPagesSpan').textContent = totalPages || 1;
+    }
+
+    // Export to Excel Function
+    function exportToExcel() {
+        const table = document.getElementById('userTable');
+        const rows = [];
+        
+        // Headers
+        const headers = ['ID', 'Username', 'Email', 'Role', 'Tanggal Daftar'];
+        rows.push(headers.join(','));
+        
+        // Data rows (visible rows only)
+        currentRows.forEach(row => {
+            if (row.style.display !== 'none') {
+                const cells = row.querySelectorAll('td');
+                const rowData = [
+                    cells[0].textContent.trim(),
+                    cells[1].textContent.trim(),
+                    cells[2].textContent.trim(),
+                    cells[3].textContent.trim(),
+                    cells[4].textContent.trim()
+                ];
+                rows.push(rowData.join(','));
+            }
+        });
+        
+        // Create and download CSV
+        const csvContent = rows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'data_user_spbe_' + new Date().toISOString().slice(0,10) + '.csv');
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+{% endblock %}

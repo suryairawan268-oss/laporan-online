@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Produksi Merak</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f4f8;
+      color: #2d3748;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body class="p-4 sm:p-6">
+  <div class="max-w-xl mx-auto space-y-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800">LAPORAN TUKANG PRODUKSI MERAK</h1>
+    
+    <!-- Dropdown pilih form -->
+    <div class="bg-white p-4 rounded-lg shadow-md border">
+      <label for="jenis_laporan" class="block text-sm font-medium text-gray-700 mb-2">Pilih Jenis Laporan:</label>
+      <select id="jenis_laporan" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 px-3 py-2">
+        <option value="">-- Pilih Jenis --</option>
+        <option value="form-produksi-mulai-container">Produksi Mulai</option>
+        <option value="form-produksi-selesai-container">Produksi Selesai</option>
+      </select>
+    </div>
+    
+    <!-- Bagian Pesan -->
+    <div id="message-box" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-md relative text-center" role="alert">
+      <p id="message-text"></p>
+    </div>
+
+    <!-- Bagian Produksi Mulai -->
+    <div id="form-produksi-mulai-container" class="hidden bg-white p-6 sm:p-8 rounded-lg shadow-xl border-t-4 border-blue-500 space-y-6">
+      <h2 class="text-xl font-semibold text-blue-600 border-b pb-2">Produksi Mulai</h2>
+      <form id="form-produksi-mulai" action="/produksi-mulai" class="space-y-4">
+        <div>
+          <label for="kp_mulai" class="block text-sm font-medium text-gray-700">Kepala Produksi</label>
+          <input type="text" id="kp_mulai" name="kepala_produksi" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2" required>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="tgl_mulai" class="block text-sm font-medium text-gray-700">Tanggal</label>
+            <input type="date" id="tgl_mulai" name="tanggal" readonly class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm px-3 py-2 cursor-not-allowed tanggal">
+          </div>
+          <div>
+            <label for="driver_mulai" class="block text-sm font-medium text-gray-700">Nama Driver</label>
+            <input type="text" id="driver_mulai" name="nama_driver" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2" required>
+          </div>
+        </div>
+        <div>
+          <label for="jam_mulai_bongkar" class="block text-sm font-medium text-gray-700">Jam Mulai Bongkar</label>
+          <input type="time" id="jam_mulai_bongkar" name="jam_mulai" readonly class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm px-3 py-2 cursor-not-allowed jam">
+        </div>
+        <div>
+            <label for="shift_mulai" class="block text-sm font-medium text-gray-700">Shift</label>
+            <input type="text" id="shift_mulai" name="shift" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2" required>
+        </div>
+        <div class="pt-2">
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md">Kirim Laporan</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Bagian Produksi Selesai -->
+    <div id="form-produksi-selesai-container" class="hidden bg-white p-6 sm:p-8 rounded-lg shadow-xl border-t-4 border-green-500 space-y-6">
+      <h2 class="text-xl font-semibold text-green-600 border-b pb-2">Produksi Selesai</h2>
+      <form id="form-produksi-selesai" action="/produksi-selesai" class="space-y-4">
+        <div>
+          <label for="kp_selesai" class="block text-sm font-medium text-gray-700">Kepala Produksi</label>
+          <input type="text" id="kp_selesai" name="kepala_produksi" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2" required>
+        </div>
+        <div>
+          <label for="tgl_selesai" class="block text-sm font-medium text-gray-700">Tanggal</label>
+          <input type="date" id="tgl_selesai" name="tanggal" readonly class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm px-3 py-2 cursor-not-allowed tanggal">
+        </div>
+        <div>
+          <label for="jam_selesai_bongkar" class="block text-sm font-medium text-gray-700">Jam Selesai</label>
+          <input type="time" id="jam_selesai_bongkar" name="jam_selesai" readonly class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm px-3 py-2 cursor-not-allowed jam">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="tabung_kosong" class="block text-sm font-medium text-gray-700">Jumlah Tabung Kosong</label>
+            <input type="number" id="tabung_kosong" name="tabung_kosong" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2">
+          </div>
+          <div>
+            <label for="tabung_12kg" class="block text-sm font-medium text-gray-700">Jumlah Tabung 12KG</label>
+            <input type="number" id="tabung_12kg" name="tabung_12" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2">
+          </div>
+          <div>
+            <label for="tabung_50kg" class="block text-sm font-medium text-gray-700">Jumlah Tabung 50KG</label>
+            <input type="number" id="tabung_50kg" name="tabung_50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2">
+          </div>
+        </div>
+        <div>
+          <label for="keterangan" class="block text-sm font-medium text-gray-700">Keterangan</label>
+          <textarea id="keterangan" name="keterangan" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2"></textarea>
+        </div>
+        <div class="pt-2">
+          <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-md">Kirim Laporan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const dropdown = document.getElementById('jenis_laporan');
+    const allForms = document.querySelectorAll('#form-produksi-mulai-container, #form-produksi-selesai-container');
+    const forms = document.querySelectorAll('form');
+
+    // Fungsi untuk memformat angka menjadi dua digit (contoh: 05)
+    function formatTwoDigits(num) {
+      return num < 10 ? '0' + num : num;
+    }
+
+    // Fungsi untuk mengisi tanggal dan waktu saat ini secara otomatis
+    function setInitialDateTime() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = formatTwoDigits(now.getMonth() + 1);
+      const day = formatTwoDigits(now.getDate());
+      const hours = formatTwoDigits(now.getHours());
+      const minutes = formatTwoDigits(now.getMinutes());
+      const dateString = `${year}-${month}-${day}`;
+      const timeString = `${hours}:${minutes}`;
+
+      document.querySelectorAll('.tanggal').forEach(el => el.value = dateString);
+      document.querySelectorAll('.jam').forEach(el => el.value = timeString);
+    }
+    
+    // Fungsi untuk menampilkan pesan (sukses atau error)
+    function showMessage(message, type) {
+      const messageBox = document.getElementById('message-box');
+      const messageText = document.getElementById('message-text');
+      messageText.textContent = message;
+      
+      messageBox.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'border-green-400', 'border-red-400', 'text-green-700', 'text-red-700');
+      
+      if (type === 'error') {
+        messageBox.classList.add('bg-red-100', 'border-red-400', 'text-red-700');
+      } else {
+        messageBox.classList.add('bg-green-100', 'border-green-400', 'text-green-700');
+      }
+      messageBox.classList.remove('hidden');
+      messageBox.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Panggil fungsi untuk mengisi tanggal dan waktu saat halaman dimuat
+    setInitialDateTime();
+
+    // Event listener untuk dropdown
+    dropdown.addEventListener('change', () => {
+      allForms.forEach(f => f.classList.add('hidden'));
+      if (dropdown.value) {
+        document.getElementById(dropdown.value).classList.remove('hidden');
+        showMessage(''); // Sembunyikan pesan saat formulir diganti
+        setInitialDateTime();
+      }
+    });
+
+    // Event listener untuk semua formulir
+forms.forEach(form => {
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const actionUrl = e.target.action;
+
+    try {
+      const response = await fetch(actionUrl, {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        showMessage(result.message, 'success');
+        e.target.reset();
+        setInitialDateTime();
+        document.getElementById(e.target.parentNode.id).classList.add('hidden');
+        dropdown.value = "";
+      } else {
+        showMessage('Gagal mengirim laporan!', 'error');
+      }
+    } catch (err) {
+      showMessage('Terjadi error koneksi ke server!', 'error');
+    }
+  });
+});
+  </script>
+</body>
+</html>

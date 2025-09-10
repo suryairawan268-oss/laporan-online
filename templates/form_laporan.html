@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Form Laporan</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #f0f2f5;
+      font-family: "Inter", "Segoe UI", sans-serif;
+    }
+
+    .container {
+      max-width: 640px;
+    }
+
+    .form-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    h3 {
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #222;
+    }
+
+    .form-label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    .form-control, .form-select, textarea {
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 16px;
+      border: 1.5px solid #ddd;
+      transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus, textarea:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 6px rgba(13,110,253,0.3);
+      outline: none;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .error-text {
+      color: #dc3545;
+      font-size: 13px;
+      margin-top: 4px;
+      display: none;
+    }
+
+    button {
+      border-radius: 12px;
+      padding: 14px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    @media (max-width: 576px) {
+      .form-box {
+        padding: 18px;
+      }
+      h3 {
+        font-size: 20px;
+      }
+      .form-control, .form-select, textarea {
+        font-size: 15px;
+        padding: 12px 14px;
+      }
+      button {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light">
+<div class="container py-4">
+  <div class="form-box">
+    <h3>Form Laporan</h3>
+
+    <!-- Dropdown Lokasi -->
+    <div class="form-group">
+      <label class="form-label">Pilih Lokasi</label>
+      <select id="lokasi" class="form-select" required>
+        <option value="">-- Pilih Lokasi --</option>
+        <option value="merak">Merak</option>
+        <option value="semarang">Semarang</option>
+      </select>
+      <div class="error-text" id="lokasiError">Lokasi harus dipilih.</div>
+    </div>
+
+    <!-- Dropdown Jenis -->
+    <div class="form-group">
+      <label class="form-label">Pilih Jenis Laporan</label>
+      <select id="jenis" class="form-select" required>
+        <option value="">-- Pilih Jenis --</option>
+      </select>
+      <div class="error-text" id="jenisError">Jenis laporan harus dipilih.</div>
+    </div>
+
+    <!-- Form Dinamis -->
+    <form id="formLaporan" method="post" enctype="multipart/form-data">
+      <div id="formContainer"></div>
+      <button type="submit" class="btn btn-primary w-100 mt-2">Simpan</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Mapping field ke backend
+  const nameMapping = {
+    "Nama Driver": "nama_driver",
+    "Tanggal": "tanggal",
+    "Rit (trip ke berapa)": "rit",
+    "Jam Masuk": "jam_masuk",
+    "Jam Keluar": "jam_keluar",
+    "Jumlah SPA": "jumlah_spa",
+    "Upload Foto SPA": "foto_spa",
+    "Petugas Loading": "petugas_loading",
+    "Catatan": "catatan",
+    "Upload Foto": "media",
+    "Penanggung Jawab": "penanggung_jawab",
+    "Jam Mulai": "jam_mulai",
+    "Jam Mulai Bongkar": "jam_mulai",
+    "Shift": "shift",
+    "Netto SPA": "netto_spa",
+    "Rotogen Kanan": "rotogen_kanan",
+    "Rotogen Kiri": "rotogen_kiri",
+    "Upload Video Kiri": "video_kiri",
+    "Upload Video Kanan": "video_kanan",
+    "Jam Selesai": "jam_selesai",
+    "Kepala Produksi": "kepala_produksi",
+    "Jumlah Tabung Kosong": "tabung_kosong",
+    "Jumlah Tabung 12KG": "tabung_12",
+    "Jumlah Tabung 50KG": "tabung_50",
+    "Keterangan": "keterangan",
+    "Plat Mobil": "plat_mobil",
+    "Jam Berangkat": "jam_berangkat",
+    "Kapasitas Kendaraan": "kapasitas",
+    "Jenis Tabung": "jenis_tabung",
+    "Jumlah Tabung Dibawah": "jumlah_dibawa",
+    "Jumlah Tabung Turun": "jumlah_turun",
+    "Tujuan": "tujuan",
+    "Alamat Pengirim": "alamat",
+    "Kondisi Tabung": "kondisi_tabung",
+    "Upload Foto / Verifikasi Barang": "verifikasi_barang",
+    "Jam Bongkar": "jam_bongkar",
+    "Jumlah Tabung Terbawa": "jumlah_terbawa",
+    "Sisa Tabung Dibawah Pulang (Isi)": "sisa_dibawa",
+    "Jumlah Tabung Kosong Pulang": "jumlah_kosong",
+    "Nama Pangkalan": "nama_pangkalan",
+    "Alamat Pangkalan": "alamat_pangkalan",
+    "Catatan / Keterangan": "catatan",
+    "Upload Foto / Video Verifikasi": "media"
+  };
+
+  // Endpoint mapping
+  const endpointMapping = {
+    "Skid Masuk Depot": "/skid-masuk-depot",
+    "Skid Keluar Depot": "/skid-keluar-depot",
+    "Skid Masuk Laut": "/skid-masuk-laut",
+    "Skid Keluar Laut": "/skid-keluar-laut",
+    "Skid Masuk Lumbung": "/skid-masuk-lumbung",
+    "Skid Keluar Lumbung": "/skid-keluar-lumbung",
+    "Sebelum Loading": "/sebelum-loading",
+    "Sesudah Loading": "/sesudah-loading",
+    "Produksi Mulai": "/produksi-mulai",
+    "Produksi Selesai": "/produksi-selesai",
+    "Laporan Kirim": (lokasi) => `/laporan/kirim-${lokasi}`,
+    "Laporan Bongkar": (lokasi) => `/laporan/bongkar-${lokasi}`
+  };
+
+  // Config field per lokasi - DIPERBAIKI SESUAI PERMINTAAN
+  const formConfig = {
+    merak: {
+      "Skid Masuk Depot": ["Nama Driver", "Tanggal", "Rit (trip ke berapa)", "Jam Masuk"],
+      "Skid Keluar Depot": ["Nama Driver", "Tanggal", "Jam Keluar", "Jumlah SPA", "Upload Foto SPA"],
+      "Skid Masuk Laut": ["Nama Driver", "Tanggal", "Jam Masuk", "Petugas Loading"],
+      "Skid Keluar Laut": ["Nama Driver", "Tanggal", "Jam Keluar", "Catatan", "Upload Foto"],
+      "Sebelum Loading": ["Penanggung Jawab", "Tanggal", "Nama Driver", "Jam Mulai", "Netto SPA", "Rotogen Kanan", "Rotogen Kiri", "Upload Video Kiri", "Upload Video Kanan"],
+      "Sesudah Loading": ["Penanggung Jawab", "Tanggal", "Jam Selesai", "Upload Video Kiri", "Upload Video Kanan"],
+      "Produksi Mulai": ["Kepala Produksi", "Tanggal", "Nama Driver", "Jam Mulai Bongkar", "Shift"],
+      "Produksi Selesai": ["Kepala Produksi", "Tanggal", "Jam Selesai", "Jumlah Tabung Kosong", "Jumlah Tabung 12KG", "Jumlah Tabung 50KG", "Keterangan"],
+      "Laporan Kirim": ["Tanggal", "Nama Driver", "Plat Mobil", "Jam Berangkat", "Kapasitas Kendaraan", "Jenis Tabung", "Jumlah Tabung Dibawah", "Jumlah Tabung Turun", "Tujuan", "Alamat Pengirim", "Kondisi Tabung", "Keterangan", "Upload Foto / Verifikasi Barang"],
+      "Laporan Bongkar": ["Tanggal", "Nama Driver", "Jam Bongkar", "Jenis Tabung", "Jumlah Tabung Terbawa", "Jumlah Tabung Turun", "Sisa Tabung Dibawah Pulang (Isi)", "Jumlah Tabung Kosong Pulang", "Kondisi Tabung", "Nama Pangkalan", "Alamat Pangkalan", "Catatan / Keterangan", "Upload Foto / Video Verifikasi"]
+    },
+    semarang: {
+      "Skid Masuk Lumbung": ["Nama Driver", "Tanggal", "Jam Masuk", "Petugas Loading"],
+      "Skid Keluar Lumbung": ["Nama Driver", "Tanggal", "Jam Keluar", "Catatan", "Upload Foto"],
+      "Sebelum Loading": ["Penanggung Jawab", "Tanggal", "Nama Driver", "Jam Mulai", "Netto SPA", "Rotogen Kanan", "Rotogen Kiri", "Upload Video Kiri", "Upload Video Kanan"],
+      "Sesudah Loading": ["Penanggung Jawab", "Tanggal", "Jam Selesai", "Upload Video Kiri", "Upload Video Kanan"],
+      "Produksi Mulai": ["Kepala Produksi", "Tanggal", "Nama Driver", "Jam Mulai Bongkar", "Shift"],
+      "Produksi Selesai": ["Kepala Produksi", "Tanggal", "Jam Selesai", "Jumlah Tabung Kosong", "Jumlah Tabung 12KG", "Jumlah Tabung 50KG", "Keterangan"],
+      "Laporan Kirim": ["Tanggal", "Nama Driver", "Plat Mobil", "Jam Berangkat", "Kapasitas Kendaraan", "Jenis Tabung", "Jumlah Tabung Dibawah", "Jumlah Tabung Turun", "Tujuan", "Alamat Pengirim", "Kondisi Tabung", "Keterangan", "Upload Foto / Verifikasi Barang"],
+      "Laporan Bongkar": ["Tanggal", "Nama Driver", "Jam Bongkar", "Jenis Tabung", "Jumlah Tabung Terbawa", "Jumlah Tabung Turun", "Sisa Tabung Dibawah Pulang (Isi)", "Jumlah Tabung Kosong Pulang", "Kondisi Tabung", "Nama Pangkalan", "Alamat Pangkalan", "Catatan / Keterangan", "Upload Foto / Video Verifikasi"]
+    }
+  };
+
+  const lokasiSelect = document.getElementById("lokasi");
+  const jenisSelect = document.getElementById("jenis");
+  const formContainer = document.getElementById("formContainer");
+
+  lokasiSelect.addEventListener("change", () => {
+    jenisSelect.innerHTML = '<option value="">-- Pilih Jenis --</option>';
+    formContainer.innerHTML = "";
+    if (lokasiSelect.value) {
+      Object.keys(formConfig[lokasiSelect.value]).forEach(jenis => {
+        const opt = document.createElement("option");
+        opt.value = jenis;
+        opt.textContent = jenis;
+        jenisSelect.appendChild(opt);
+      });
+    }
+  });
+
+  jenisSelect.addEventListener("change", () => {
+    formContainer.innerHTML = "";
+    if (jenisSelect.value) {
+      const fields = formConfig[lokasiSelect.value][jenisSelect.value];
+      fields.forEach(field => {
+        let inputType = "text";
+        if (field.toLowerCase().includes("tanggal")) inputType = "date";
+        if (field.toLowerCase().includes("jam")) inputType = "time";
+        if (field.toLowerCase().includes("upload")) inputType = "file";
+
+        const nameAttr = nameMapping[field] || field.toLowerCase().replace(/\s+/g, "_");
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "form-group";
+
+        const label = document.createElement("label");
+        label.className = "form-label";
+        label.textContent = field;
+
+        wrapper.appendChild(label);
+
+        if (field.toLowerCase().includes("catatan") || field.toLowerCase().includes("keterangan")) {
+          const textarea = document.createElement("textarea");
+          textarea.className = "form-control";
+          textarea.name = nameAttr;
+          textarea.required = true;
+          wrapper.appendChild(textarea);
+        } else {
+          const input = document.createElement("input");
+          input.type = inputType;
+          input.className = "form-control";
+          input.name = nameAttr;
+          input.required = true;
+          wrapper.appendChild(input);
+        }
+
+        const error = document.createElement("div");
+        error.className = "error-text";
+        error.textContent = field + " wajib diisi.";
+        wrapper.appendChild(error);
+
+        formContainer.appendChild(wrapper);
+      });
+    }
+  });
+
+  // Submit ke backend FastAPI + validasi
+  document.getElementById("formLaporan").addEventListener("submit", function(e) {
+    e.preventDefault();
+    let valid = true;
+
+    // validasi dropdown
+    if (!lokasiSelect.value) {
+      document.getElementById("lokasiError").style.display = "block";
+      valid = false;
+    } else {
+      document.getElementById("lokasiError").style.display = "none";
+    }
+
+    if (!jenisSelect.value) {
+      document.getElementById("jenisError").style.display = "block";
+      valid = false;
+    } else {
+      document.getElementById("jenisError").style.display = "none";
+    }
+
+    // validasi input dinamis - SEMUA FIELD WAJIB DIISI
+    const inputs = formContainer.querySelectorAll("input, textarea, select");
+    inputs.forEach(input => {
+      const errorText = input.parentElement.querySelector(".error-text");
+
+      if (input.type === "file") {
+        if (input.files.length === 0) {
+          errorText.style.display = "block";
+          valid = false;
+        } else {
+          errorText.style.display = "none";
+        }
+      } else {
+        if (input.value.trim() === "") {
+          errorText.style.display = "block";
+          valid = false;
+        } else {
+          errorText.style.display = "none";
+        }
+      }
+    });
+
+    if (!valid) return;
+
+    const lokasi = lokasiSelect.value;
+    const jenis = jenisSelect.value;
+    const formData = new FormData(this);
+
+    let endpoint = endpointMapping[jenis];
+    if (typeof endpoint === "function") {
+      endpoint = endpoint(lokasi);
+    }
+
+    fetch(endpoint, {
+      method: "POST",
+      body: formData
+    }).then(res => {
+      if (res.ok) {
+        alert("Data berhasil disimpan!");
+        
+        // Reset semua form
+        lokasiSelect.value = "";
+        jenisSelect.innerHTML = '<option value="">-- Pilih Jenis --</option>';
+        formContainer.innerHTML = "";
+        
+        // Focus kembali ke dropdown lokasi
+        lokasiSelect.focus();
+      } else if (res.redirected) {
+        window.location.href = res.url;
+      } else {
+        alert("Terjadi kesalahan saat menyimpan!");
+      }
+    }).catch(err => {
+      alert("Network error: " + err.message);
+    });
+  });
+</script>
+</body>
+</html>

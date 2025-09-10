@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="dashboard-header mb-5">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div class="header-content">
+                <h1 class="display-5 fw-bold mb-2 text-primary">Dashboard Control Center</h1>
+                <p class="lead text-muted">Selamat datang kembali di sistem pelaporan SPBE Migas</p>
+            </div>
+            <div class="welcome-card">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-circle me-3">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <p class="mb-0 text-muted small">Selamat datang,</p>
+                        <h5 class="mb-0 fw-bold text-success">Administrator</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card stat-card-users">
+                <div class="stat-card-body">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" data-target="{{ total_user }}">{{ total_user }}</div>
+                        <div class="stat-label">Total User</div>
+                        <div class="stat-trend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+12% dari bulan lalu</span>
+                        </div>
+                    </div>
+                    <div class="stat-chart">
+                        <div class="mini-chart" id="userChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card stat-card-employees">
+                <div class="stat-card-body">
+                    <div class="stat-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" data-target="{{ total_karyawan }}">{{ total_karyawan }}</div>
+                        <div class="stat-label">Total Karyawan</div>
+                        <div class="stat-trend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+8% dari bulan lalu</span>
+                        </div>
+                    </div>
+                    <div class="stat-chart">
+                        <div class="mini-chart" id="employeeChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6">
+            <div class="stat-card stat-card-production">
+                <div class="stat-card-body">
+                    <div class="stat-icon">
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" data-target="{{ total_produksi }}">{{ total_produksi }}</div>
+                        <div class="stat-label">Total Produksi</div>
+                        <div class="stat-trend">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+24% dari bulan lalu</span>
+                        </div>
+                    </div>
+                    <div class="stat-chart">
+                        <div class="mini-chart" id="productionChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-access-section">
+        <div class="section-header mb-4">
+            <h3 class="fw-bold mb-2 text-dark">
+                <i class="fas fa-bolt text-primary me-2"></i>
+                Akses Cepat
+            </h3>
+            <p class="text-muted">Navigasi cepat ke fitur utama sistem</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="quick-link-card">
+                    <div class="card-icon users-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-content">
+                        <h5 class="card-title">Data User</h5>
+                        <p class="card-description">Kelola dan pantau data pengguna sistem</p>
+                        <div class="card-stats">
+                            <span class="badge bg-success">
+                                <i class="fas fa-eye me-1"></i>Active
+                            </span>
+                        </div>
+                    </div>
+                    <a href="/laporan/data-user" class="stretched-link"></a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="quick-link-card">
+                    <div class="card-icon employees-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="card-content">
+                        <h5 class="card-title">Data Karyawan</h5>
+                        <p class="card-description">Manajemen data karyawan perusahaan</p>
+                        <div class="card-stats">
+                            <span class="badge bg-primary">
+                                <i class="fas fa-users me-1"></i>Manage
+                            </span>
+                        </div>
+                    </div>
+                    <a href="/laporan/data-karyawan" class="stretched-link"></a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="quick-link-card">
+                    <div class="card-icon production-icon">
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <div class="card-content">
+                        <h5 class="card-title">Laporan Produksi</h5>
+                        <p class="card-description">Monitor produksi Merak & Semarang</p>
+                        <div class="card-stats">
+                            <span class="badge bg-warning">
+                                <i class="fas fa-chart-line me-1"></i>Live Data
+                            </span>
+                        </div>
+                    </div>
+                    <a href="/dashboard/mrksmg" class="stretched-link"></a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="quick-link-card">
+                    <div class="card-icon payment-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="card-content">
+                        <h5 class="card-title">Pembayaran Agen</h5>
+                        <p class="card-description">Kelola pembayaran dan transaksi agen</p>
+                        <div class="card-stats">
+                            <span class="badge bg-info">
+                                <i class="fas fa-money-bill-wave me-1"></i>Finance
+                            </span>
+                        </div>
+                    </div>
+                    <a href="/laporan/pembayaran-agen" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Dashboard Header */
+    .dashboard-header {
+        padding: 2rem 0;
+        border-bottom: 1px solid var(--border-gray);
+        margin-bottom: 3rem;
+    }
+
+    .header-content h1 {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .welcome-card {
+        background: var(--pure-white);
+        border: 1px solid var(--border-gray);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--pure-white);
+        font-size: 1.2rem;
+    }
+
+    /* Statistics Cards */
+    .stat-card {
+        background: var(--pure-white);
+        border-radius: 1rem;
+        padding: 0;
+        border: 1px solid var(--border-gray);
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card-body {
+        padding: 2rem;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--pure-white);
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card-users .stat-icon {
+        background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+    }
+
+    .stat-card-employees .stat-icon {
+        background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    }
+
+    .stat-card-production .stat-icon {
+        background: linear-gradient(135deg, var(--warning-orange), #f59e0b);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--dark-gray);
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+
+    .stat-label {
+        color: var(--medium-gray);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .stat-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--success-green);
+        font-weight: 500;
+        margin-top: auto;
+    }
+
+    .mini-chart {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        width: 60px;
+        height: 40px;
+        opacity: 0.3;
+    }
+
+    /* Quick Access Cards */
+    .section-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .quick-link-card {
+        background: var(--pure-white);
+        border-radius: 1rem;
+        padding: 2rem;
+        border: 1px solid var(--border-gray);
+        box-shadow: var(--shadow-md);
+        position: relative;
+        transition: all 0.3s ease;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .quick-link-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .card-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: var(--pure-white);
+        margin-bottom: 1.5rem;
+    }
+
+    .users-icon {
+        background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+    }
+    .employees-icon {
+        background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    }
+    .production-icon {
+        background: linear-gradient(135deg, var(--warning-orange), #f59e0b);
+    }
+    .payment-icon {
+        background: linear-gradient(135deg, var(--info-cyan), #06b6d4);
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark-gray);
+        margin-bottom: 0.75rem;
+    }
+
+    .card-description {
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+        flex-grow: 1;
+    }
+
+    .card-stats {
+        margin-top: auto;
+    }
+
+    /* Badge Styles */
+    .badge {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        letter-spacing: 0.025em;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .dashboard-header .d-flex {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .quick-link-card {
+            padding: 1.5rem;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<script>
+    // Counter Animation for Statistics
+    function animateCounters() {
+        const counters = document.querySelectorAll('.stat-number');
+
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target')) || 0;
+            const duration = 2000;
+            const increment = target / (duration / 16);
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = target.toLocaleString('id-ID');
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(current).toLocaleString('id-ID');
+                }
+            }, 16);
+        });
+    }
+
+    // Mini Chart Simulation
+    function createMiniCharts() {
+        const charts = document.querySelectorAll('.mini-chart');
+
+        charts.forEach(chart => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 60;
+            canvas.height = 40;
+            chart.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+
+            // Simple line chart
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.moveTo(0, 30);
+            ctx.lineTo(15, 25);
+            ctx.lineTo(30, 15);
+            ctx.lineTo(45, 20);
+            ctx.lineTo(60, 10);
+            ctx.stroke();
+        });
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(animateCounters, 500);
+        createMiniCharts();
+    });
+</script>
+
+{% endblock %}

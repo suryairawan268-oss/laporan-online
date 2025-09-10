@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pembayaran Agen</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { font-size: 1rem; }
+    label.form-label { font-size: 0.95rem; }
+    @media (max-width: 768px) {
+      .table-desktop { display: none; }
+      .cards-mobile { display: block; }
+      .btn { width: 100%; }
+      .form-control, .form-select { font-size: 1rem; }
+    }
+    @media (min-width: 769px) {
+      .table-desktop { display: block; }
+      .cards-mobile { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="container py-4">
+  <h2 class="fw-bold mb-3">Input Pembayaran Agen</h2>
+
+  <button class="btn btn-success mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#formCollapse">
+    + Tambah Pembayaran
+  </button>
+
+  <div class="collapse" id="formCollapse">
+    <form id="formPembayaran" enctype="multipart/form-data" class="card card-body mb-3 shadow-sm border-0">
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Nama Agen</label>
+          <input type="text" class="form-control form-control-lg" id="namaAgen" required>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Harga Pertabung</label>
+          <input type="text" inputmode="numeric" class="form-control form-control-lg" id="hargaPertabung" placeholder="Rp 0" required>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Jenis Tabung</label>
+          <select class="form-select form-select-lg" id="jenisTabung" required>
+            <option value="">-- Pilih Jenis --</option>
+            <option value="12KG">12 KG</option>
+            <option value="50KG">50 KG</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Nama Driver</label>
+          <input type="text" class="form-control form-control-lg" id="namaDriver" required>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Tanggal Pengiriman</label>
+          <input type="date" class="form-control form-control-lg" id="tanggalPengiriman" required>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Jumlah Tabung Turun</label>
+          <input type="number" class="form-control form-control-lg" id="jumlahTabung" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Upload Bukti Pembayaran (opsional)</label>
+          <input type="file" class="form-control form-control-lg" id="bukti" accept="image/*">
+        </div>
+      </div>
+      <div class="mt-3">
+        <button type="submit" class="btn btn-primary btn-lg">Simpan</button>
+      </div>
+    </form>
+  </div>
+
+  <hr class="my-4">
+
+  <h3 class="fw-bold mb-3">Daftar Pembayaran</h3>
+
+  <div class="table-responsive table-desktop">
+    <table class="table table-bordered table-striped align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Nama Agen</th>
+          <th>Jenis</th>
+          <th class="text-end">Harga/Tabung</th>
+          <th class="text-center">Jumlah Turun</th>
+          <th class="text-end">Total</th>
+          <th>Driver</th>
+          <th>Tanggal</th>
+          <th>Status</th>
+          <th>Bukti</th>
+        </tr>
+      </thead>
+      <tbody id="tabelBody"></tbody>
+      <tfoot>
+        <tr>
+          <th colspan="4" class="text-end">Grand Total</th>
+          <th class="text-end" id="totalJumlah">Rp 0</th>
+          <th colspan="4"></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="cards-mobile" id="tabelBodyMobile"></div>
+</div>
+
+<div class="modal fade" id="buktiModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Preview Bukti</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="buktiPreview" src="" alt="Bukti Pembayaran" class="img-fluid rounded shadow">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "/api/pembayaran-agen";
+function pick(item, ...keys) { for (const k of keys) { if (item && item[k]!=null) return item[k]; } }
+function parseNumber(v){ if(!v) return 0; return Number(String(v).replace(/[^0-9\.\-]/g,""))||0; }
+function fmtCurrency(v){ return new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",minimumFractionDigits:0}).format(v);}
+const form=document.getElementById("formPembayaran"),totalJumlahEl=document.getElementById("totalJumlah");
+
+async function loadData(){
+  const res=await fetch(API_BASE); if(!res.ok) return console.error("fetch fail",res.status);
+  const data=await res.json();
+  const tbody=document.getElementById("tabelBody"); tbody.innerHTML="";
+  const tbodyMobile=document.getElementById("tabelBodyMobile"); tbodyMobile.innerHTML="";
+  let grandTotal=0;
+
+  data.forEach(item=>{
+    const nama=pick(item,"nama_agen","namaAgen","nama")||"-";
+    const jenis=pick(item,"jenis_tabung","jenisTabung","jenis")||"-";
+    const hargaRaw=pick(item,"harga_pertabung","hargaPertabung","harga")||0;
+    const jumlahRaw=pick(item,"jumlah_tabung","jumlahTabung","jumlah","jumlah_turun")||0;
+    const driver=pick(item,"nama_driver","namaDriver","driver")||"-";
+    const tanggalRaw=pick(item,"tanggal_pengiriman","tanggalPengiriman","tanggal","created_at");
+    const status=pick(item,"status","paid_status")||"-";
+    const bukti=pick(item,"bukti","bukti_pembayaran","file")||null;
+    const hargaNum=parseNumber(hargaRaw), jumlahNum=parseNumber(jumlahRaw);
+    const subtotal=hargaNum*jumlahNum; grandTotal+=subtotal;
+    const hargaFormatted=hargaNum?fmtCurrency(hargaNum):"-";
+    const subtotalFormatted=subtotal?fmtCurrency(subtotal):"-";
+    let tanggalFormatted="-"; if(tanggalRaw){ const d=new Date(tanggalRaw); if(!isNaN(d)) tanggalFormatted=d.toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});}
+    const id=pick(item,"id","_id")||"";
+
+    // Row desktop
+    const row=document.createElement("tr");
+    row.innerHTML=`
+      <td>${escapeHtml(nama)}</td>
+      <td>${escapeHtml(jenis)}</td>
+      <td class="text-end">${hargaFormatted}</td>
+      <td class="text-center">${jumlahNum||"-"}</td>
+      <td class="text-end">${subtotalFormatted}</td>
+      <td>${escapeHtml(driver)}</td>
+      <td>${tanggalFormatted}</td>
+      <td>${status==="Paid"||status==="paid"||status===true?'<span class="badge bg-success">Paid</span>':'<span class="badge bg-danger">Belum Paid</span>'}</td>
+      <td>${bukti?`<button class="btn btn-sm btn-outline-primary" onclick="showBukti('${escapeAttr(bukti)}')">Lihat Bukti</button>`:`<input type="file" class="form-control form-control-sm" accept="image/*" onchange="uploadBukti('${id}',this)">`}</td>`;
+    tbody.appendChild(row);
+
+    // Card mobile
+    const card=document.createElement("div");
+    card.className="card mb-2 shadow-sm";
+    card.innerHTML=`
+      <div class="card-body p-2">
+        <h6 class="fw-bold mb-1">${escapeHtml(nama)} (${escapeHtml(jenis)})</h6>
+        <p class="mb-1">Harga: ${hargaFormatted}</p>
+        <p class="mb-1">Jumlah: ${jumlahNum} | Total: <strong>${subtotalFormatted}</strong></p>
+        <p class="mb-1">Driver: ${escapeHtml(driver)}</p>
+        <p class="mb-1">Tanggal: ${tanggalFormatted}</p>
+        <p class="mb-1">Status: ${status==="Paid"||status==="paid"||status===true?'<span class="badge bg-success">Paid</span>':'<span class="badge bg-danger">Belum Paid</span>'}</p>
+        <div>${bukti?`<button class="btn btn-sm btn-outline-primary" onclick="showBukti('${escapeAttr(bukti)}')">Lihat Bukti</button>`:`<input type="file" class="form-control form-control-sm mt-1" accept="image/*" onchange="uploadBukti('${id}',this)">`}</div>
+      </div>`;
+    tbodyMobile.appendChild(card);
+  });
+
+  totalJumlahEl.textContent=fmtCurrency(grandTotal);
+}
+
+form.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const fd=new FormData();
+  const hargaNum=parseNumber(document.getElementById("hargaPertabung").value);
+  fd.append("nama_agen",form.namaAgen.value); fd.append("namaAgen",form.namaAgen.value);
+  fd.append("harga_pertabung",hargaNum); fd.append("hargaPertabung",hargaNum);
+  fd.append("jenis_tabung",form.jenisTabung.value); fd.append("jenisTabung",form.jenisTabung.value);
+  fd.append("nama_driver",form.namaDriver.value); fd.append("namaDriver",form.namaDriver.value);
+  fd.append("tanggal_pengiriman",form.tanggalPengiriman.value); fd.append("tanggalPengiriman",form.tanggalPengiriman.value);
+  fd.append("jumlah_tabung",form.jumlahTabung.value); fd.append("jumlahTabung",form.jumlahTabung.value); fd.append("jumlah_turun",form.jumlahTabung.value);
+  if(form.bukti.files.length>0) fd.append("bukti",form.bukti.files[0]);
+  try{ const res=await fetch(API_BASE,{method:"POST",body:fd}); if(!res.ok) throw new Error();
+    form.reset(); if(window.bootstrap){ const collapseEl=document.getElementById("formCollapse"); const bs=bootstrap.Collapse.getInstance(collapseEl)||new bootstrap.Collapse(collapseEl); bs.hide();}
+    loadData(); }catch(err){ alert("Terjadi kesalahan saat menyimpan data."); }
+});
+
+async function uploadBukti(id,input){
+  if(!id||input.files.length===0) return;
+  const fd=new FormData(); fd.append("bukti",input.files[0]);
+  try{ const res=await fetch(`${API_BASE}/${id}`,{method:"PUT",body:fd}); if(!res.ok) throw new Error(); input.value=""; loadData();}
+  catch(err){ alert("Upload bukti gagal.");}
+}
+
+function showBukti(url) {
+  // Tambahkan awalan '/uploads/' jika belum ada, untuk memastikan jalur benar
+  const fullUrl = url.startsWith('/uploads/') ? url : '/uploads/' + url;
+
+  const buktiPreview = document.getElementById("buktiPreview");
+  buktiPreview.src = fullUrl;
+  const modal = new bootstrap.Modal(document.getElementById("buktiModal"));
+  modal.show();
+}
+
+function escapeHtml(s){ if(s==null) return ""; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s){ if(s==null) return ""; return String(s).replace(/"/g,'&quot;'); }
+
+loadData();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

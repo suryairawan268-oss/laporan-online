@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Kirim & Bongkar Merak</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body class="p-6">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <h1 class="text-2xl font-bold text-center text-gray-800">Laporan Kirim & Bongkar Merak</h1>
+
+    <!-- Dropdown pilih jenis laporan -->
+    <div class="bg-white p-4 rounded-lg shadow-md border">
+      <label for="jenis_laporan" class="block mb-2 font-medium text-gray-700">Pilih Jenis Laporan:</label>
+      <select id="jenis_laporan" class="w-full border-gray-300 rounded-md shadow-sm px-3 py-2">
+        <option value="">-- Pilih Jenis --</option>
+        <option value="form-kirim">Laporan Kirim Merak</option>
+        <option value="form-bongkar">Laporan Bongkar Merak</option>
+      </select>
+    </div>
+
+    <!-- Form Kirim -->
+    <div id="form-kirim" class="hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-500">
+      <h2 class="text-lg font-semibold mb-4 text-blue-600">Laporan Kirim Merak</h2>
+      <form action="/laporan/kirim-merak" method="post" enctype="multipart/form-data" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input type="text" name="tanggal" class="tanggal rounded-md border-gray-300 px-3 py-2 bg-gray-100" readonly required>
+          <input type="text" name="jam_berangkat" class="jam rounded-md border-gray-300 px-3 py-2 bg-gray-100" readonly required>
+          <input type="text" name="nama_driver" placeholder="Nama Driver" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="text" name="plat_mobil" placeholder="Plat Mobil" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="number" name="kapasitas" placeholder="Kapasitas Kendaraan" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="text" name="jenis_tabung" placeholder="Jenis Tabung" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="number" name="jumlah_dibawa" placeholder="Jumlah Tabung Dibawa" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="number" name="jumlah_turun" placeholder="Jumlah Tabung Turun" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="text" name="tujuan" placeholder="Tujuan" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="text" name="alamat" placeholder="Alamat Pengirim" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="text" name="kondisi_tabung" placeholder="Kondisi Tabung" required class="rounded-md border-gray-300 px-3 py-2">
+        </div>
+        <textarea name="keterangan" placeholder="Keterangan" class="w-full rounded-md border-gray-300 px-3 py-2"></textarea>
+        <div>
+          <label class="block text-sm font-medium">Upload Foto / Verifikasi Barang</label>
+          <input type="file" name="verifikasi_barang" accept="image/*" required class="mt-1">
+        </div>
+        <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md">Kirim</button>
+      </form>
+    </div>
+
+    <!-- Form Bongkar -->
+    <div id="form-bongkar" class="hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-green-500">
+      <h2 class="text-lg font-semibold mb-4 text-green-600">Laporan Bongkar Merak</h2>
+      <form action="/laporan/bongkar-merak" method="post" enctype="multipart/form-data" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input type="text" name="tanggal" class="tanggal rounded-md border-gray-300 px-3 py-2 bg-gray-100" readonly required>
+          <input type="text" name="jam_bongkar" class="jam rounded-md border-gray-300 px-3 py-2 bg-gray-100" readonly required>
+          <input type="text" name="nama_driver" placeholder="Nama Driver" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="text" name="jenis_tabung" placeholder="Jenis Tabung" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="number" name="jumlah_terbawa" placeholder="Jumlah Tabung Terbawa" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="number" name="jumlah_turun" placeholder="Jumlah Tabung Turun" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="number" name="sisa_dibawa" placeholder="Sisa Tabung Dibawa Pulang (Isi)" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="number" name="jumlah_kosong" placeholder="Jumlah Tabung Kosong Pulang" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="text" name="kondisi_tabung" placeholder="Kondisi Tabung" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="text" name="nama_pangkalan" placeholder="Nama Pangkalan" required class="rounded-md border-gray-300 px-3 py-2">
+          <input type="text" name="alamat_pangkalan" placeholder="Alamat Pangkalan" required class="rounded-md border-gray-300 px-3 py-2">
+        </div>
+        <textarea name="catatan" placeholder="Catatan / Keterangan" class="w-full rounded-md border-gray-300 px-3 py-2"></textarea>
+        <div>
+          <label class="block text-sm font-medium">Upload Foto / Video Verifikasi</label>
+          <input type="file" name="media" accept="image/*,video/*" required class="mt-1">
+        </div>
+        <button type="submit" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-md">Kirim</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const dropdown = document.getElementById('jenis_laporan');
+    const allForms = document.querySelectorAll('#form-kirim, #form-bongkar');
+    const forms = document.querySelectorAll('form');
+
+    // Ganti form sesuai dropdown
+    dropdown.addEventListener('change', () => {
+      allForms.forEach(f => f.classList.add('hidden'));
+      if (dropdown.value) {
+        document.getElementById(dropdown.value).classList.remove('hidden');
+        setInitialDateTime();
+      }
+    });
+
+    // format dua digit
+    function twoDigits(n) { return n < 10 ? '0' + n : n; }
+
+    // set tanggal & jam otomatis
+    function setInitialDateTime() {
+      const now = new Date();
+      const tanggal = `${now.getFullYear()}-${twoDigits(now.getMonth() + 1)}-${twoDigits(now.getDate())}`;
+      const jam = `${twoDigits(now.getHours())}:${twoDigits(now.getMinutes())}`;
+      document.querySelectorAll('.tanggal').forEach(el => el.value = tanggal);
+      document.querySelectorAll('.jam').forEach(el => el.value = jam);
+    }
+
+    // update setiap menit
+    setInitialDateTime();
+    setInterval(setInitialDateTime, 60000);
+
+    // Tangani submit form
+    forms.forEach(form => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const url = form.action;
+
+        fetch(url, { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === "success") {
+              alert("✅ Laporan berhasil dikirim!");
+              form.reset();
+              dropdown.value = "";
+              allForms.forEach(f => f.classList.add('hidden'));
+              setInitialDateTime();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+              alert("❌ Gagal: " + (data.message || "Terjadi kesalahan"));
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert("⚠️ Terjadi error koneksi: " + err.message);
+          });
+      });
+    });
+  </script>
+</body>
+</html>

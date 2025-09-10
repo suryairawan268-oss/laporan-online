@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Skid Merak</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      color: #1e293b;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 8px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Form input styling */
+    .form-input {
+      transition: all 0.2s ease;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .form-input:hover:not(:focus):not([readonly]) {
+      border-color: #94a3b8;
+    }
+    
+    .form-input[readonly] {
+      background-color: #f8fafc;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+    
+    /* Select dropdown custom arrow */
+    select.form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.75rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
+    }
+    
+    /* Button styling */
+    .btn-submit {
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+    
+    /* File upload styling */
+    .file-upload-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      cursor: pointer;
+      width: 100%;
+    }
+    
+    .file-upload-wrapper input[type=file] {
+      position: absolute;
+      left: -9999px;
+    }
+    
+    .file-upload-label {
+      display: block;
+      padding: 0.75rem 1rem;
+      background: #ffffff;
+      border: 2px dashed #cbd5e1;
+      border-radius: 0.5rem;
+      text-align: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .file-upload-label:hover {
+      border-color: #3b82f6;
+      background: #f0f9ff;
+    }
+    
+    .file-name {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    
+    /* Card styling */
+    .form-card {
+      transition: all 0.3s ease;
+    }
+    
+    /* Loading states */
+    .loading-spinner {
+      border: 2px solid #e2e8f0;
+      border-top: 2px solid #3b82f6;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 0.8s linear infinite;
+      display: none;
+      margin-left: 8px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      padding: 16px 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+      max-width: 90vw;
+    }
+    
+    .toast.show {
+      transform: translateX(0);
+    }
+    
+    .toast.success {
+      border-left: 4px solid #10b981;
+    }
+    
+    .toast.error {
+      border-left: 4px solid #ef4444;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      .toast {
+        right: 12px;
+        left: 12px;
+        max-width: calc(100vw - 24px);
+      }
+    }
+    
+    /* Form section headers */
+    .section-header {
+      position: relative;
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .section-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6 border border-gray-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">LAPORAN SKID MERAK</h1>
+            <p class="text-gray-500 text-sm mt-1">Sistem Pelaporan Terintegrasi</p>
+          </div>
+          <div class="hidden sm:block">
+            <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V10a2 2 0 00-2-2H8a2 2 0 00-2 2v5m3-2h6m-6 4h6m2 0h.01M6 20h.01M6 16h.01M6 12h.01M6 8h.01"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selection Card -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-6 border border-gray-200">
+        <div class="mb-4">
+          <h2 class="text-lg font-semibold text-gray-900 mb-1">Pilih Jenis Laporan</h2>
+          <p class="text-sm text-gray-500">Pilih formulir sesuai dengan aktivitas yang akan dilaporkan</p>
+        </div>
+        <select id="jenis_laporan" class="form-select form-input w-full rounded-lg px-4 py-3 text-gray-700 font-medium">
+          <option value="">-- Pilih Jenis Laporan --</option>
+          <option value="form-masuk-depot">Skid Masuk Depot</option>
+          <option value="form-keluar-depot">Skid Keluar Depot</option>
+          <option value="form-masuk-laut">Skid Masuk Laut</option>
+          <option value="form-keluar-laut">Skid Keluar Laut</option>
+        </select>
+      </div>
+
+      <!-- Form Masuk Depot -->
+      <div id="form-masuk-depot" class="form-card hidden bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="border-b border-gray-200 bg-blue-50 p-6 rounded-t-xl">
+          <h2 class="text-xl font-bold text-gray-900">Skid Masuk Depot</h2>
+          <p class="text-gray-600 text-sm mt-1">Formulir pencatatan skid masuk ke area depot</p>
+        </div>
+        
+        <form action="/skid-masuk-depot" method="post" class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Nama Driver <span class="text-red-500">*</span>
+              </label>
+              <input type="text" name="nama_driver" required 
+                     class="form-input w-full rounded-lg px-4 py-2.5"
+                     placeholder="Masukkan nama driver">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Tanggal <span class="text-red-500">*</span>
+              </label>
+              <input type="date" name="tanggal" readonly required 
+                     class="tanggal form-input w-full rounded-lg px-4 py-2.5">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Rit (Trip ke-) <span class="text-red-500">*</span>
+              </label>
+              <input type="number" name="rit" required 
+                     class="form-input w-full rounded-lg px-4 py-2.5"
+                     placeholder="Contoh: 1, 2, 3...">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Jam Masuk <span class="text-red-500">*</span>
+              </label>
+              <input type="time" name="jam_masuk" readonly required 
+                     class="jam form-input w-full rounded-lg px-4 py-2.5"
+                     step="1">
+            </div>
+          </div>
+          
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <button type="submit" class="btn-submit bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg inline-flex items-center">
+              <span>Kirim Laporan</span>
+              <span class="loading-spinner"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Form Keluar Depot -->
+      <div id="form-keluar-depot" class="form-card hidden bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="border-b border-gray-200 bg-green-50 p-6 rounded-t-xl">
+          <h2 class="text-xl font-bold text-gray-900">Skid Keluar Depot</h2>
+          <p class="text-gray-600 text-sm mt-1">Formulir pencatatan skid keluar dari area depot</p>
+        </div>
+        
+        <form action="/skid-keluar-depot" method="post" enctype="multipart/form-data" class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Nama Driver <span class="text-red-500">*</span>
+              </label>
+              <input type="text" name="nama_driver" required 
+                     class="form-input w-full rounded-lg px-4 py-2.5"
+                     placeholder="Masukkan nama driver">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Tanggal <span class="text-red-500">*</span>
+              </label>
+              <input type="date" name="tanggal" readonly required 
+                     class="tanggal form-input w-full rounded-lg px-4 py-2.5">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Jam Keluar <span class="text-red-500">*</span>
+              </label>
+              <input type="time" name="jam_keluar" readonly required 
+                     class="jam form-input w-full rounded-lg px-4 py-2.5">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Jumlah SPA <span class="text-red-500">*</span>
+              </label>
+              <input type="number" name="jumlah_spa" required 
+                     class="form-input w-full rounded-lg px-4 py-2.5"
+                     placeholder="Masukkan jumlah SPA">
+            </div>
+            
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Upload Foto SPA <span class="text-red-500">*</span>
+              </label>
+              <div class="file-upload-wrapper">
+                <input type="file" name="foto_spa" id="foto_spa" accept="image/*" required>
+                <label for="foto_spa" class="file-upload-label">
+                  <svg class="w-6 h-6 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  <span class="text-gray-600">Klik untuk upload foto atau drag & drop</span>
+                  <span class="file-name"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <button type="submit" class="btn-submit bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg inline-flex items-center">
+              <span>Kirim Laporan</span>
+              <span class="loading-spinner"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Form Masuk Laut -->
+      <div id="form-masuk-laut" class="form-card hidden bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="border-b border-gray-200 bg-amber-50 p-6 rounded-t-xl">
+          <h2 class="text-xl font-bold text-gray-900">Skid Masuk Laut</h2>
+          <p class="text-gray-600 text-sm mt-1">Formulir pencatatan skid masuk dari area laut</p>
+        </div>
+        
+        <form action="/skid-masuk-laut" method="post" class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Nama Driver <span class="text-red-500">*</span>
+              </label>
+              <input type="text" name="nama_driver" required 
+                     class="form-input w-full rounded-lg px-4 py-2.5"
+                     placeholder="Masukkan nama driver">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Tanggal <span class="text-red-500">*</span>
+              </label>
+              <input type="date" name="tanggal" readonly required 
+                     class="tanggal form-input w-full rounded-lg px-4 py-2.5">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Jam Masuk <span class="text-red-500">*</span>
+              </label>
+              <input type="time" name="jam_masuk" readonly required 
+                     class="jam form-input w-full rounded-lg px-4 py-2.5">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Petugas Loading <span class="text-red-500">*</span>
+              </label>
+              <input type="text" name="petugas_loading" required 
+                     class="form-input w-full rounded-lg px-4 py-2.5"
+                     placeholder="Masukkan nama petugas">
+            </div>
+          </div>
+          
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <button type="submit" class="btn-submit bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-6 rounded-lg inline-flex items-center">
+              <span>Kirim Laporan</span>
+              <span class="loading-spinner"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Form Keluar Laut -->
+      <div id="form-keluar-laut" class="form-card hidden bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="border-b border-gray-200 bg-red-50 p-6 rounded-t-xl">
+          <h2 class="text-xl font-bold text-gray-900">Skid Keluar Laut</h2>
+          <p class="text-gray-600 text-sm mt-1">Formulir pencatatan skid keluar ke area laut</p>
+        </div>
+        
+        <form action="/skid-keluar-laut" method="post" enctype="multipart/form-data" class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Nama Driver <span class="text-red-500">*</span>
+              </label>
+              <input type="text" name="nama_driver" required 
+                     class="form-input w-full rounded-lg px-4 py-2.5"
+                     placeholder="Masukkan nama driver">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Tanggal <span class="text-red-500">*</span>
+              </label>
+              <input type="date" name="tanggal" readonly required 
+                     class="tanggal form-input w-full rounded-lg px-4 py-2.5">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Jam Keluar <span class="text-red-500">*</span>
+              </label>
+              <input type="time" name="jam_keluar" readonly required 
+                     class="jam form-input w-full rounded-lg px-4 py-2.5">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Catatan
+              </label>
+              <textarea name="catatan" rows="3" 
+                        class="form-input w-full rounded-lg px-4 py-2.5"
+                        placeholder="Tambahkan catatan (opsional)"></textarea>
+            </div>
+            
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Upload Foto <span class="text-red-500">*</span>
+              </label>
+              <div class="file-upload-wrapper">
+                <input type="file" name="media" id="media" accept="image/*" required>
+                <label for="media" class="file-upload-label">
+                  <svg class="w-6 h-6 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  <span class="text-gray-600">Klik untuk upload foto atau drag & drop</span>
+                  <span class="file-name"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <button type="submit" class="btn-submit bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg inline-flex items-center">
+              <span>Kirim Laporan</span>
+              <span class="loading-spinner"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast" class="toast">
+    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span id="toast-message">Laporan berhasil dikirim!</span>
+  </div>
+
+<script>
+  // DOM Elements
+  const dropdown = document.getElementById('jenis_laporan');
+  const allForms = document.querySelectorAll('#form-masuk-depot, #form-keluar-depot, #form-masuk-laut, #form-keluar-laut');
+  const forms = document.querySelectorAll('form');
+  const toast = document.getElementById('toast');
+  const toastMessage = document.getElementById('toast-message');
+
+  // Show/Hide forms based on dropdown
+  dropdown.addEventListener('change', () => {
+    allForms.forEach(f => f.classList.add('hidden'));
+    if (dropdown.value) {
+      const selectedForm = document.getElementById(dropdown.value);
+      selectedForm.classList.remove('hidden');
+      // Smooth scroll to form
+      setTimeout(() => {
+        selectedForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  });
+
+  // Auto-fill date and time + lock input
+  function formatTwoDigits(num) {
+    return num < 10 ? '0' + num : num;
+  }
+
+  function setInitialDateTime() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = formatTwoDigits(now.getMonth() + 1);
+    const day = formatTwoDigits(now.getDate());
+    const hours = formatTwoDigits(now.getHours());
+    const minutes = formatTwoDigits(now.getMinutes());
+
+    // isi otomatis + kunci field tanggal
+    document.querySelectorAll('.tanggal').forEach(el => {
+      el.value = `${year}-${month}-${day}`;
+      el.setAttribute("readonly", true);
+    });
+
+    // isi otomatis + kunci field jam
+    document.querySelectorAll('.jam').forEach(el => {
+      el.value = `${hours}:${minutes}`;
+      el.setAttribute("readonly", true);
+    });
+  }
+
+  setInitialDateTime();
+
+  // File upload handling
+  document.querySelectorAll('input[type="file"]').forEach(input => {
+    input.addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name;
+      const fileNameDisplay = e.target.parentElement.querySelector('.file-name');
+      if (fileName && fileNameDisplay) {
+        fileNameDisplay.textContent = `File terpilih: ${fileName}`;
+        fileNameDisplay.style.color = '#10b981';
+      }
+    });
+  });
+
+  // Show toast notification
+  function showToast(message, type = 'success') {
+    toastMessage.textContent = message;
+    toast.classList.remove('success', 'error');
+    toast.classList.add(type);
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 4000);
+  }
+
+  // Form submission handling
+  forms.forEach(form => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const spinner = submitBtn.querySelector('.loading-spinner');
+      const btnText = submitBtn.querySelector('span:first-child');
+      
+      // Show loading state
+      spinner.style.display = 'inline-block';
+      btnText.textContent = 'Mengirim...';
+      submitBtn.disabled = true;
+
+      const formData = new FormData(form);
+      const actionUrl = form.action;
+
+      try {
+        const response = await fetch(actionUrl, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Terjadi kesalahan jaringan atau server.');
+        }
+
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          showToast('Laporan berhasil dikirim!', 'success');
+          
+          // Reset form
+          form.reset();
+          setInitialDateTime();
+          
+          // Clear file names
+          form.querySelectorAll('.file-name').forEach(el => {
+            el.textContent = '';
+          });
+          
+          // Hide form and reset dropdown
+          setTimeout(() => {
+            allForms.forEach(f => f.classList.add('hidden'));
+            dropdown.value = "";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }, 1500);
+        } else {
+          showToast(data.message || 'Terjadi kesalahan saat mengirim laporan', 'error');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showToast('Terjadi kesalahan: ' + error.message, 'error');
+      } finally {
+        // Reset button state
+        spinner.style.display = 'none';
+        btnText.textContent = 'Kirim Laporan';
+        submitBtn.disabled = false;
+      }
+    });
+  });
+
+  // Add input validation feedback
+  document.querySelectorAll('input[required], textarea[required]').forEach(input => {
+    input.addEventListener('blur', function() {
+      if (this.value.trim() === '') {
+        this.classList.add('border-red-300');
+      } else {
+        this.classList.remove('border-red-300');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

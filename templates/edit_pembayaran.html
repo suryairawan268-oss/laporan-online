@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Edit Pembayaran Agen - SPBE Migas{% endblock %}
+{% block page_title %}Edit Pembayaran Agen{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold text-primary mb-2">
+                    <i class="fas fa-edit me-2"></i>Edit Pembayaran Agen
+                </h2>
+                <p class="text-muted">Perbarui detail pembayaran agen</p>
+            </div>
+            <a href="/laporan-pembayaran-agen" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Kembali ke Laporan
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title fw-semibold mb-4">Formulir Pembayaran</h5>
+                    
+                    <form action="/agen/edit/{{ pembayaran.id }}" method="POST" enctype="multipart/form-data">
+                        
+                        <div class="mb-3">
+                            <label for="nama_agen" class="form-label">Nama Agen</label>
+                            <input type="text" class="form-control" id="nama_agen" name="nama_agen" value="{{ pembayaran.nama_agen }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="harga_pertabung" class="form-label">Harga Pertabung</label>
+                            <input type="number" class="form-control" id="harga_pertabung" name="harga_pertabung" value="{{ pembayaran.harga_pertabung }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="jenis_tabung" class="form-label">Jenis Tabung</label>
+                            <input type="text" class="form-control" id="jenis_tabung" name="jenis_tabung" value="{{ pembayaran.jenis_tabung }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="nama_driver" class="form-label">Nama Driver</label>
+                            <input type="text" class="form-control" id="nama_driver" name="nama_driver" value="{{ pembayaran.nama_driver }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tanggal_pengiriman" class="form-label">Tanggal Pengiriman</label>
+                            <input type="date" class="form-control" id="tanggal_pengiriman" name="tanggal_pengiriman" value="{{ pembayaran.tanggal_pengiriman.isoformat() if pembayaran.tanggal_pengiriman else '' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="jumlah_turun" class="form-label">Jumlah Turun</label>
+                            <input type="number" class="form-control" id="jumlah_turun" name="jumlah_turun" value="{{ pembayaran.jumlah_turun }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="bukti" class="form-label">Bukti Pembayaran (Opsional)</label>
+                            <input type="file" class="form-control" id="bukti" name="bukti">
+                            {% if pembayaran.bukti %}
+                                <small class="form-text text-muted">Bukti saat ini: <a href="{{ pembayaran.bukti }}" target="_blank">{{ pembayaran.bukti.split('/')[-1] }}</a></small>
+                            {% endif %}
+                        </div>
+
+                        {% if user.role == "admin" %}
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status Pembayaran</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="Belum Paid" {% if pembayaran.status == 'Belum Paid' %}selected{% endif %}>Belum Paid</option>
+                                <option value="Paid" {% if pembayaran.status == 'Paid' %}selected{% endif %}>Paid</option>
+                                <option value="Dibatalkan" {% if pembayaran.status == 'Dibatalkan' %}selected{% endif %}>Dibatalkan</option>
+                            </select>
+                        </div>
+                        {% else %}
+                            <input type="hidden" name="role" value="lapangan">
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Simpan Perubahan
+                        </button>
+                    </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

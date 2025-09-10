@@ -1,0 +1,838 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Produksi{% endblock %}
+
+{% block content %}
+<style>
+/* CSS UNTUK TAMPILAN KESELURUHAN */
+body {
+    background: #f1f5f9;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    color: #475569;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.main-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+/* HEADER DASHBOARD */
+.header-section {
+    background: #ffffff;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 2rem;
+    padding: 2rem 0;
+    text-align: center;
+}
+
+.header-section h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.header-section p {
+    font-size: 1rem;
+    color: #64748b;
+    margin: 0;
+}
+
+/* KONTROL UTAMA (TAB & FILTER) */
+.controls-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.tabs-container {
+    display: inline-flex;
+    background: white;
+    border-radius: 9999px;
+    padding: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+}
+
+.tab-button {
+    padding: 0.75rem 2rem;
+    border: none;
+    background: transparent;
+    border-radius: 9999px;
+    font-weight: 600;
+    color: #94a3b8;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    font-size: 0.9rem;
+    min-width: 120px;
+}
+
+.tab-button:hover {
+    color: #475569;
+}
+
+.tab-button.active {
+    background: #2563eb;
+    color: white;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+}
+
+.filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-button {
+    padding: 0.6rem 1.25rem;
+    border-radius: 9999px;
+    background-color: #e2e8f0;
+    color: #475569;
+    font-weight: 500;
+    font-size: 0.85rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.filter-button:hover {
+    background-color: #cbd5e1;
+}
+
+.merak .filter-button.active {
+    background-color: #2563eb;
+}
+
+.semarang .filter-button.active {
+    background-color: #16a34a;
+}
+
+/* KOTAK STATISTIK */
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: left;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.stat-number {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* KONTEN LAPORAN & KARTU */
+.content-section {
+    margin-top: 1.5rem;
+}
+
+.reports-container {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+.report-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.report-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    background: #f8fafc;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.report-id {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.merak .report-id svg {
+    color: #2563eb;
+}
+
+.semarang .report-id svg {
+    color: #16a34a;
+}
+
+.report-type {
+    background: #e2e8f0;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.card-content {
+    padding: 1.5rem;
+}
+
+.summary-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.summary-info .tanggal {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.summary-info .driver {
+    color: #1e293b;
+}
+
+.detail-section {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+}
+
+.detail-section.expanded {
+    max-height: 1000px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #334155;
+    word-break: break-word;
+}
+
+.toggle-btn {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    background-color: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.toggle-btn:hover {
+    background-color: #e2e8f0;
+    transform: translateY(-1px);
+}
+
+.files-section {
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.files-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+}
+
+.files-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+}
+
+.file-btn {
+    background: #f8fafc;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-align: center;
+}
+
+.file-btn:hover {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.no-files {
+    background: #f8fafc;
+    border: 2px dashed #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* MODAL */
+.modal-content {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    background: #1e293b;
+    color: white;
+    border: none;
+    padding: 1.5rem 2rem;
+}
+
+.modal-title {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.btn-close {
+    filter: invert(1);
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    background: #f8fafc;
+}
+
+.image-preview {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.modal-footer {
+    border: none;
+    padding: 1.5rem;
+    background: #f8fafc;
+}
+
+/* TOMBOL AKSI (EDIT & HAPUS) */
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.action-btn {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    background-color: #f8fafc;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.action-btn:hover {
+    background-color: #e2e8f0;
+    transform: translateY(-1px);
+}
+
+.action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.action-btn.edit:hover {
+    background-color: #2563eb;
+    color: white;
+}
+.action-btn.edit:hover svg {
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background-color: #ef4444;
+    color: white;
+}
+.action-btn.delete:hover svg {
+    color: white;
+}
+
+
+/* MEDIA QUERIES */
+@media (max-width: 768px) {
+    .main-container {
+        padding: 1rem;
+    }
+    .header-section {
+        padding: 1.5rem 0;
+    }
+    .header-section h1 {
+        font-size: 1.75rem;
+    }
+    .tabs-container {
+        flex-direction: column;
+        width: 100%;
+    }
+    .tab-button {
+        width: 100%;
+        min-width: unset;
+        border-radius: 8px;
+    }
+    .controls-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    .filter-container {
+        margin-top: 0;
+        justify-content: center;
+    }
+    .reports-container {
+        grid-template-columns: 1fr;
+    }
+    .stats-overview {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<div class="main-container">
+    <div class="header-section">
+        <h1>Dashboard SPBE</h1>
+        <p>Sistem Pelaporan Bahan Bakar Elpiji - Monitoring Fasilitas Merak & Semarang</p>
+    </div>
+
+    <div class="controls-section">
+        <div class="tabs-container">
+            <button class="tab-button active" onclick="showTab('merak', this)">
+                Fasilitas Merak
+            </button>
+            <button class="tab-button" onclick="showTab('semarang', this)">
+                Fasilitas Semarang
+            </button>
+        </div>
+    </div>
+
+    <div class="stats-overview">
+        <div class="stat-card">
+            <div class="stat-number">{{ laporan_merak|length }}</div>
+            <div class="stat-label">Total Laporan Merak</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ laporan_semarang|length }}</div>
+            <div class="stat-label">Total Laporan Semarang</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ (laporan_merak|length) + (laporan_semarang|length) }}</div>
+            <div class="stat-label">Total Keseluruhan</div>
+        </div>
+    </div>
+
+    <div id="merak-content" class="content-section merak">
+        {% if laporan_merak %}
+            <div class="filter-container" id="filter-merak">
+                <button class="filter-button active" onclick="filterReports('merak', 'all', this)">Semua Laporan</button>
+                {% set report_types = laporan_merak|map(attribute='jenis')|unique|list %}
+                {% for report_type in report_types %}
+                    <button class="filter-button" onclick="filterReports('merak', '{{ report_type }}', this)">
+                        {{ report_type }}
+                    </button>
+                {% endfor %}
+            </div>
+            <div class="reports-container">
+                {% for row in laporan_merak %}
+                <div class="report-card" data-report-type="{{ row.jenis }}" data-report-id="{{ row.id }}">
+                    <div class="card-header">
+                        <span class="report-id">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg>
+                            Report #{{ loop.revindex }}
+                        </span>
+                        <span class="report-type">{{ row.jenis }}</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="summary-info">
+                            <span class="tanggal">{{ row.tanggal or row.created_at[:10] }}</span>
+                            <span class="driver">{{ row.nama_driver or 'Driver Tidak Ditemukan' }}</span>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <div class="info-grid">
+                                {% set display_fields = [] %}
+                                {% if row.jenis == "Skid Masuk Depot" %}
+                                  {% set display_fields = ['rit', 'jam_masuk'] %}
+                                {% elif row.jenis == "Skid Keluar Depot" %}
+                                  {% set display_fields = ['jam_keluar', 'jumlah_spa'] %}
+                                {% elif row.jenis == "Skid Masuk Laut" %}
+                                  {% set display_fields = ['jam_masuk', 'petugas_loading'] %}
+                                {% elif row.jenis == "Skid Keluar Laut" %}
+                                  {% set display_fields = ['jam_keluar', 'catatan'] %}
+                                {% elif row.jenis == "Sebelum Loading" %}
+                                  {% set display_fields = ['penanggung_jawab', 'jam_mulai', 'netto_spa', 'rotogen_kanan', 'rotogen_kiri'] %}
+                                {% elif row.jenis == "Sesudah Loading" %}
+                                  {% set display_fields = ['penanggung_jawab', 'jam_selesai'] %}
+                                {% elif row.jenis == "Produksi Mulai" %}
+                                  {% set display_fields = ['kepala_produksi', 'jam_mulai'] %}
+                                {% elif row.jenis == "Produksi Selesai" %}
+                                  {% set display_fields = ['kepala_produksi', 'jam_selesai', 'tabung_kosong', 'tabung_12', 'tabung_50', 'keterangan'] %}
+                                {% elif row.jenis == "Laporan Kirim" %}
+                                  {% set display_fields = ['plat_mobil', 'jam_berangkat', 'kapasitas', 'jenis_tabung', 'jumlah_dibawa', 'jumlah_turun', 'tujuan', 'alamat', 'kondisi_tabung', 'keterangan'] %}
+                                {% elif row.jenis == "Laporan Bongkar" %}
+                                  {% set display_fields = ['jam_bongkar', 'jenis_tabung', 'jumlah_terbawa', 'jumlah_turun', 'sisa_dibawa', 'jumlah_kosong', 'kondisi_tabung', 'nama_pangkalan', 'alamat_pangkalan', 'catatan'] %}
+                                {% endif %}
+                                {% for field in display_fields %}
+                                  {% if row[field] is defined and row[field] is not none %}
+                                    <div class="info-item">
+                                      <div class="info-label">{{ field|replace('_', ' ')|capitalize }}</div>
+                                      <div class="info-value">{{ row[field] }}</div>
+                                    </div>
+                                  {% endif %}
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="files-section">
+                                <div class="files-title">File Terlampir</div>
+                                <div class="files-grid">
+                                    {% if row.video_kiri %}
+                                        <button class="file-btn" onclick="showMediaPreview('/uploads/{{ row.video_kiri }}')">Video Kiri</button>
+                                    {% endif %}
+                                    {% if row.video_kanan %}
+                                        <button class="file-btn" onclick="showMediaPreview('/uploads/{{ row.video_kanan }}')">Video Kanan</button>
+                                    {% endif %}
+                                    {% if row.foto_spa %}
+                                        <button class="file-btn" onclick="showMediaPreview('/uploads/{{ row.foto_spa }}')">Foto SPA</button>
+                                    {% endif %}
+                                    {% if row.media %}
+                                        <button class="file-btn" onclick="showMediaPreview('/uploads/{{ row.media }}')">Lihat Media</button>
+                                    {% endif %}
+                                    {% if row.verifikasi_barang %}
+                                        <button class="file-btn" onclick="showMediaPreview('/uploads/{{ row.verifikasi_barang }}')">Verifikasi Barang</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="toggle-btn" onclick="toggleDetails(this)">Lihat Detail</button>
+
+                        <div class="action-buttons">
+                            <a href="/edit_laporan/{{ row.id }}" class="action-btn edit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                Edit
+                            </a>
+                            <button class="action-btn delete" onclick="confirmDeletion('{{ row.id }}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p class="empty-text">Belum ada laporan untuk Fasilitas Merak</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div id="semarang-content" class="content-section semarang" style="display: none;">
+        {% if laporan_semarang %}
+            <div class="filter-container" id="filter-semarang">
+                <button class="filter-button active" onclick="filterReports('semarang', 'all', this)">Semua Laporan</button>
+                {% set report_types = laporan_semarang|map(attribute='jenis')|unique|list %}
+                {% for report_type in report_types %}
+                    <button class="filter-button" onclick="filterReports('semarang', '{{ report_type }}', this)">
+                        {{ report_type }}
+                    </button>
+                {% endfor %}
+            </div>
+            <div class="reports-container">
+                {% for row in laporan_semarang %}
+                <div class="report-card" data-report-type="{{ row.jenis }}" data-report-id="{{ row.id }}">
+                    <div class="card-header">
+                        <span class="report-id">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg>
+                            Report #{{ loop.revindex }}
+                        </span>
+                        <span class="report-type">{{ row.jenis }}</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="summary-info">
+                            <span class="tanggal">{{ row.created_at[:10] }}</span>
+                            <span class="driver">{{ row.nama_driver or 'Driver Tidak Ditemukan' }}</span>
+                        </div>
+                        <div class="detail-section">
+                            <div class="info-grid">
+                                {% set display_fields = ['plat_mobil', 'jam_masuk', 'jam_keluar', 'jumlah', 'jumlah_spa', 'tabung_kosong', 'tabung_12', 'tabung_50', 'petugas_loading', 'tujuan'] %}
+                                {% for field in display_fields %}
+                                  {% if row[field] is defined and row[field] is not none %}
+                                    <div class="info-item">
+                                      <div class="info-label">{{ field|replace('_', ' ')|capitalize }}</div>
+                                      <div class="info-value">{{ row[field] }}</div>
+                                    </div>
+                                  {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="files-section">
+                                <div class="files-title">File Terlampir</div>
+                                <div class="files-grid">
+                                    {% if row.video_kiri %}
+                                        <button class="file-btn" onclick="showMediaPreview('/uploads/{{ row.video_kiri }}')">Video Kiri</button>
+                                    {% endif %}
+                                    {% if row.video_kanan %}
+                                        <button class="file-btn" onclick="showMediaPreview('/uploads/{{ row.video_kanan }}')">Video Kanan</button>
+                                    {% endif %}
+                                    {% if row.foto_spa %}
+                                        <button class="file-btn" onclick="showMediaPreview('/uploads/{{ row.foto_spa }}')">Foto SPA</button>
+                                    {% endif %}
+                                    {% if row.media %}
+                                        <button class="file-btn" onclick="showMediaPreview('/uploads/{{ row.media }}')">Lihat Media</button>
+                                    {% endif %}
+                                    {% if row.verifikasi_barang %}
+                                        <button class="file-btn" onclick="showMediaPreview('/uploads/{{ row.verifikasi_barang }}')">Verifikasi Barang</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <button class="toggle-btn" onclick="toggleDetails(this)">Lihat Detail</button>
+                        
+                        <div class="action-buttons">
+                            <a href="/edit_laporan/{{ row.id }}" class="action-btn edit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                Edit
+                            </a>
+                            <button class="action-btn delete" onclick="confirmDeletion('{{ row.id }}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p class="empty-text">Belum ada laporan untuk Fasilitas Semarang</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">Konfirmasi Hapus</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah Anda yakin ingin menghapus laporan ini? Tindakan ini tidak dapat dibatalkan.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="mediaPreviewModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Preview Media File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="previewImage" src="" alt="Preview Image" class="image-preview d-none">
+                    <video id="previewVideo" controls class="image-preview d-none">
+                        <source id="previewVideoSource" src="" type="video/mp4">
+                        Browser Anda tidak mendukung tag video.
+                    </video>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <a id="downloadLink" href="" target="_blank" class="btn btn-primary">Download File</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function showTab(tabId, element) {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.style.display = 'none';
+        });
+        const activeSection = document.getElementById(tabId + '-content');
+        activeSection.style.display = 'block';
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        element.classList.add('active');
+        const filterContainer = document.getElementById('filter-' + tabId);
+        if (filterContainer) {
+            filterReports(tabId, 'all', filterContainer.querySelector('.filter-button:first-child'));
+        }
+    }
+
+    function filterReports(tabId, reportType, element) {
+        const filterContainer = document.getElementById('filter-' + tabId);
+        filterContainer.querySelectorAll('.filter-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        element.classList.add('active');
+        const reportsContainer = document.getElementById(tabId + '-content').querySelector('.reports-container');
+        if (reportsContainer) {
+            reportsContainer.querySelectorAll('.report-card').forEach(card => {
+                if (reportType === 'all' || card.getAttribute('data-report-type') === reportType) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    }
+    
+    function showMediaPreview(fileSrc) {
+        const modal = new bootstrap.Modal(document.getElementById('mediaPreviewModal'));
+        const img = document.getElementById('previewImage');
+        const vid = document.getElementById('previewVideo');
+        const vidSrc = document.getElementById('previewVideoSource');
+        img.classList.add("d-none");
+        vid.classList.add("d-none");
+        vid.pause();
+        vid.currentTime = 0;
+        const fileExtension = fileSrc.split('.').pop().toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+            img.src = fileSrc;
+            img.classList.remove("d-none");
+        } else if (['mp4', 'mov', 'webm', 'avi'].includes(fileExtension)) {
+            vidSrc.src = fileSrc;
+            vid.load();
+            vid.classList.remove("d-none");
+        }
+        document.getElementById('downloadLink').href = fileSrc;
+        modal.show();
+    }
+
+    function toggleDetails(element) {
+        const cardContent = element.closest('.card-content');
+        const details = cardContent.querySelector('.detail-section');
+        const isExpanded = details.classList.contains('expanded');
+        if (isExpanded) {
+            details.classList.remove('expanded');
+            element.innerText = 'Lihat Detail';
+        } else {
+            details.classList.add('expanded');
+            element.innerText = 'Tutup Detail';
+        }
+    }
+
+    function confirmDeletion(reportId) {
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        const confirmBtn = document.getElementById('confirmDeleteBtn');
+        
+        // Hapus event listener lama jika ada
+        confirmBtn.onclick = null;
+        
+        // Tambahkan event listener baru untuk ID yang sesuai
+        confirmBtn.onclick = function() {
+            // Panggil fungsi atau endpoint backend untuk menghapus data
+            window.location.href = '/hapus_laporan/' + reportId;
+        };
+        
+        deleteModal.show();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('semarang-content').style.display = 'none';
+        
+        setTimeout(function() {
+            location.reload();
+        }, 300000);
+
+        const initialTab = document.querySelector('.tab-button.active');
+        if (initialTab) {
+            showTab(initialTab.getAttribute('onclick').match(/'([^']*)'/)[1], initialTab);
+        }
+    });
+</script>
+{% endblock %}
